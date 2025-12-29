@@ -1,0 +1,8 @@
+/* Custom CSS for IUBAT Course Offering Admin */
+
+/* White background only for sidebar logo image */
+.brand-link .brand-image {
+    background-color: white !important;
+    padding: 5px;
+    border-radius: 4px;
+}
