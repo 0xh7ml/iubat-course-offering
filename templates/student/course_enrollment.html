@@ -1,0 +1,197 @@
+{% extends 'base.html' %}
+
+{% block title %}Course Enrollment - IUBAT Course Offering{% endblock %}
+
+{% block content_header %}Course Enrollment{% endblock %}
+
+{% block breadcrumb %}
+<li class="breadcrumb-item"><a href="{% url 'student_dashboard' %}">Dashboard</a></li>
+<li class="breadcrumb-item active">Course Enrollment</li>
+{% endblock %}
+
+{% block content %}
+<div class="col-12">
+    <!-- Current Semester Info -->
+    <div class="card card-info">
+        <div class="card-header">
+            <h3 class="card-title">
+                <i class="fas fa-info-circle mr-2"></i>Enrollment Information
+            </h3>
+        </div>
+        <div class="card-body">
+            <div class="row">
+                <div class="col-md-4">
+                    <strong>Student:</strong> {{ student.student_name }} ({{ student.student_id }})
+                </div>
+                <div class="col-md-4">
+                    <strong>Semester:</strong> {{ current_semester.name|default:"Not Set" }}
+                </div>
+                <div class="col-md-4">
+                    <strong>Academic Year:</strong> {{ current_year }}
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Available Courses -->
+    <div class="card">
+        <div class="card-header">
+            <h3 class="card-title">
+                <i class="fas fa-list mr-2"></i>Available Course Schedules
+            </h3>
+            <div class="card-tools">
+                <a href="{% url 'student_routine' %}" class="btn btn-sm btn-info">
+                    <i class="fas fa-calendar mr-2"></i>View My Routine
+                </a>
+            </div>
+        </div>
+        <div class="card-body">
+            {% if not current_semester %}
+                <div class="alert alert-warning">
+                    <i class="fas fa-exclamation-triangle mr-2"></i>
+                    No active semester found. Please contact administration.
+                </div>
+            {% else %}
+                <div class="table-responsive">
+                    <table id="coursesTable" class="table table-bordered table-striped table-hover">
+                        <thead class="table-dark">
+                            <tr>
+                                <th>Course Code</th>
+                                <th>Course Name</th>
+                                <th>Department</th>
+                                <th>Credits</th>
+                                <th>Lab Course</th>
+                                <th>Day</th>
+                                <th>Time</th>
+                                <th>Section</th>
+                                <th>Status</th>
+                                <th>Action</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for schedule in course_schedules %}
+                            <tr>
+                                <td><strong>{{ schedule.course.course_code }}</strong></td>
+                                <td>{{ schedule.course.course_name }}</td>
+                                <td>{{ schedule.course.department.code }}</td>
+                                <td>{{ schedule.course.credits }}</td>
+                                <td>
+                                    {% if schedule.course.lab_course %}
+                                        <span class="badge badge-info">Lab</span>
+                                    {% else %}
+                                        <span class="badge badge-secondary">Theory</span>
+                                    {% endif %}
+                                </td>
+                                <td>{{ schedule.get_day_display }}</td>
+                                <td>{{ schedule.time_slot }}</td>
+                                <td>{{ schedule.section }}</td>
+                                <td>
+                                    {% if schedule.course.id in enrolled_courses %}
+                                        <span class="badge badge-success">Enrolled</span>
+                                    {% else %}
+                                        <span class="badge badge-warning">Available</span>
+                                    {% endif %}
+                                </td>
+                                <td>
+                                    <div class="btn-group" role="group">
+                                        {% if schedule.course.id in enrolled_courses %}
+                                            <form method="post" style="display: inline;">
+                                                {% csrf_token %}
+                                                <input type="hidden" name="course_id" value="{{ schedule.course.id }}">
+                                                <input type="hidden" name="action" value="unenroll">
+                                                <button type="submit" class="btn btn-sm btn-danger unenroll-btn" title="Unenroll">
+                                                    <i class="fas fa-trash"></i>
+                                                </button>
+                                            </form>
+                                            <button class="btn btn-sm btn-secondary" disabled title="Already Enrolled">
+                                                <i class="fas fa-check"></i>
+                                            </button>
+                                        {% else %}
+                                            <form method="post" style="display: inline;">
+                                                {% csrf_token %}
+                                                <input type="hidden" name="course_id" value="{{ schedule.course.id }}">
+                                                <input type="hidden" name="action" value="enroll">
+                                                <button type="submit" class="btn btn-sm btn-success enroll-btn" title="Enroll">
+                                                    <i class="fas fa-plus"></i>
+                                                </button>
+                                            </form>
+                                            <button class="btn btn-sm btn-outline-secondary" disabled title="Not Enrolled">
+                                                <i class="fas fa-minus"></i>
+                                            </button>
+                                        {% endif %}
+                                    </div>
+                                </td>
+                            </tr>
+                            {% empty %}
+                            <tr>
+                                <td colspan="10" class="text-center">No course schedules available.</td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            {% endif %}
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block customJs %}
+<script>
+$(document).ready(function() {
+    // Initialize DataTable
+    $('#coursesTable').DataTable({
+        "responsive": true,
+        "lengthChange": false,
+        "autoWidth": false,
+        "pageLength": 10,
+        "order": [[ 0, "asc" ]],
+        "columnDefs": [
+            { "orderable": false, "targets": [9] } // Disable sorting on Action column
+        ]
+    });
+
+    // Enrollment confirmation
+    $('.enroll-btn').click(function(e) {
+        e.preventDefault();
+        const form = $(this).closest('form');
+        const courseCode = $(this).closest('tr').find('td:first strong').text();
+        
+        Swal.fire({
+            title: 'Confirm Enrollment',
+            text: `Do you want to enroll in ${courseCode}?`,
+            icon: 'question',
+            showCancelButton: true,
+            confirmButtonColor: '#3085d6',
+            cancelButtonColor: '#d33',
+            confirmButtonText: 'Yes, Enroll!'
+        }).then((result) => {
+            if (result.isConfirmed) {
+                form.submit();
+            }
+        });
+    });
+
+    // Unenrollment confirmation
+    $('.unenroll-btn').click(function(e) {
+        e.preventDefault();
+        const form = $(this).closest('form');
+        const courseCode = $(this).closest('tr').find('td:first strong').text();
+        
+        Swal.fire({
+            title: 'Confirm Unenrollment',
+            text: `Do you want to unenroll from ${courseCode}?`,
+            icon: 'warning',
+            showCancelButton: true,
+            confirmButtonColor: '#d33',
+            cancelButtonColor: '#3085d6',
+            confirmButtonText: 'Yes, Unenroll!'
+        }).then((result) => {
+            if (result.isConfirmed) {
+                form.submit();
+            }
+        });
+    });
+});
+</script>
+{% endblock %}

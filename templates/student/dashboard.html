@@ -1,0 +1,96 @@
+{% extends 'base.html' %}
+
+{% block title %}Student Dashboard - IUBAT Course Offering{% endblock %}
+
+{% block content_header %}Dashboard{% endblock %}
+
+{% block breadcrumb %}
+<li class="breadcrumb-item"><a href="{% url 'student_dashboard' %}">Dashboard</a></li>
+<li class="breadcrumb-item active">Home</li>
+{% endblock %}
+
+{% block content %}
+<div class="col-12">
+    <!-- Welcome Header -->
+    <div class="row mb-3">
+        <div class="col-md-12">
+            <div class="alert alert-info alert-dismissible">
+                <button type="button" class="close" data-dismiss="alert" aria-hidden="true">&times;</button>
+                <h5><i class="icon fas fa-user-graduate"></i> Welcome, {{ student.student_name }}!</h5>
+                <strong>Student ID:</strong> {{ student.student_id }} | 
+                <strong>Department:</strong> {{ student.department.name }}
+                {% if current_semester %}
+                | <strong>Current Semester:</strong> {{ current_semester.name }}
+                {% endif %}
+            </div>
+        </div>
+    </div>
+
+    <!-- Info Cards Row -->
+    <div class="row">
+        <!-- Current Semester Enrollments -->
+        <div class="col-lg-3 col-6">
+            <div class="small-box bg-primary">
+                <div class="inner">
+                    <h3>{{ current_enrollments }}</h3>
+                    <p>Current Courses</p>
+                </div>
+                <div class="icon">
+                    <i class="fas fa-book-open"></i>
+                </div>
+                <a href="{% url 'course_enrollment' %}" class="small-box-footer">
+                    Manage Enrollments <i class="fas fa-arrow-circle-right"></i>
+                </a>
+            </div>
+        </div>
+
+        <!-- Total Enrollments Card -->
+        <div class="col-lg-3 col-6">
+            <div class="small-box bg-info">
+                <div class="inner">
+                    <h3>{{ total_enrollments }}</h3>
+                    <p>Total Enrollments</p>
+                </div>
+                <div class="icon">
+                    <i class="fas fa-clipboard-list"></i>
+                </div>
+                <a href="#" class="small-box-footer">
+                    All Time <i class="fas fa-chart-line"></i>
+                </a>
+            </div>
+        </div>
+
+        <!-- Weekly Schedule -->
+        <div class="col-lg-3 col-6">
+            <div class="small-box bg-success">
+                <div class="inner">
+                    <h3><i class="fas fa-calendar-week"></i></h3>
+                    <p>Weekly Schedule</p>
+                </div>
+                <div class="icon">
+                    <i class="fas fa-calendar"></i>
+                </div>
+                <a href="{% url 'student_routine' %}" class="small-box-footer">
+                    View Routine <i class="fas fa-arrow-circle-right"></i>
+                </a>
+            </div>
+        </div>
+
+        <!-- Department Info -->
+        <div class="col-lg-3 col-6">
+            <div class="small-box bg-warning">
+                <div class="inner">
+                    <h3><i class="fas fa-university"></i></h3>
+                    <p>{{ student.department.code }}</p>
+                </div>
+                <div class="icon">
+                    <i class="fas fa-building"></i>
+                </div>
+                <a href="#" class="small-box-footer">
+                    Department <i class="fas fa-info-circle"></i>
+                </a>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

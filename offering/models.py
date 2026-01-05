@@ -1,5 +1,6 @@
 from django.db import models
 from django.core.validators import MinValueValidator, MaxValueValidator
+from django.contrib.auth.models import User
 
 # Create your models here.
 class Department(models.Model):
@@ -46,11 +47,39 @@ class Course(models.Model):
     def __str__(self):
         return f"{self.course_code} - {self.course_name}"
 
+class CourseSchedule(models.Model):
+    DAY_CHOICES = [
+        ('1', 'Saturday'),
+        ('2', 'Sunday'),
+        ('3', 'Monday'),
+        ('4', 'Tuesday'),
+        ('5', 'Wednesday'),
+        ('6', 'Thursday'),
+        ('7', 'Friday'),
+    ]
+    course = models.ForeignKey(Course, on_delete=models.CASCADE, related_name='schedules')
+    day = models.CharField(max_length=9, choices=DAY_CHOICES)
+    time_slot = models.CharField(max_length=50)
+    section = models.CharField(max_length=2)
+    room_no = models.CharField(max_length=5)
+    
+    created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
+    
+    class Meta:
+        verbose_name = "Course Schedule"
+        verbose_name_plural = "Course Schedules"
+        db_table = "tb_course_schedules"
+        unique_together = ('course', 'day', 'time_slot', 'section')
+    
+    def __str__(self):
+        return f"{self.course.course_code} - {self.day} {self.time_slot} (Section {self.section})"
+
 class Student(models.Model):
+    user = models.OneToOneField(User, on_delete=models.CASCADE, related_name='student_profile', null=True, blank=True)
     student_id = models.CharField(max_length=8, unique=True)
     student_name = models.CharField(max_length=100)
     student_email = models.EmailField(unique=True)
-    student_password = models.CharField(max_length=128)
     department = models.ForeignKey(Department, on_delete=models.CASCADE, related_name='students')
     is_verified = models.BooleanField(default=False)
 
@@ -65,27 +94,6 @@ class Student(models.Model):
     def __str__(self):
         return f"{self.student_id} - {self.student_name}"
     
-class StudentResult(models.Model):
-    STATUS_CHOICES = [
-        ('Good', 'Good'),
-        ('Warning', 'Warning'),
-        ('Probation', 'Probation'),
-        ('Continue Probation', 'Continue Probation'),
-    ]
-    student = models.ForeignKey(Student, on_delete=models.CASCADE, related_name='results')
-    status = models.CharField(max_length=20, choices=STATUS_CHOICES)
-    cgpa = models.DecimalField(max_digits=4, decimal_places=2, validators=[MinValueValidator(0.00), MaxValueValidator(4.00)])
-
-    created_at = models.DateTimeField(auto_now_add=True)
-    updated_at = models.DateTimeField(auto_now=True)
-
-    class Meta:
-        verbose_name = "Student Result"
-        verbose_name_plural = "Student Results"
-        db_table = "tb_student_results"
-
-    def __str__(self):
-        return f"{self.student.student_id}"
 
 class Enrollment(models.Model):
     student = models.ForeignKey(Student, on_delete=models.CASCADE, related_name='enrollments')

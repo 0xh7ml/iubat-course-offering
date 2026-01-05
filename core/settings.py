@@ -44,7 +44,7 @@ ROOT_URLCONF = 'core.urls'
 TEMPLATES = [
     {
         'BACKEND': 'django.template.backends.django.DjangoTemplates',
-        'DIRS': [],
+        'DIRS': [BASE_DIR, 'templates'],
         'APP_DIRS': True,
         'OPTIONS': {
             'context_processors': [
@@ -184,8 +184,8 @@ JAZZMIN_SETTINGS = {
         "offering.Department": "fas fa-building",
         "offering.Semester": "fas fa-calendar-alt",
         "offering.Course": "fas fa-book",
+        "offering.CourseSchedule": "fas fa-calendar-week",
         "offering.Student": "fas fa-user-graduate",
-        "offering.StudentResult": "fas fa-chart-line",
         "offering.Enrollment": "fas fa-clipboard-list",
     },
     

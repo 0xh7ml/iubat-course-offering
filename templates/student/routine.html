@@ -1,0 +1,69 @@
+{% extends 'base.html' %}
+
+{% block title %}My Routine - IUBAT Course Offering{% endblock %}
+
+{% block content_header %}My Weekly Routine{% endblock %}
+
+{% block breadcrumb %}
+<li class="breadcrumb-item"><a href="{% url 'student_dashboard' %}">Dashboard</a></li>
+<li class="breadcrumb-item active">My Routine</li>
+{% endblock %}
+
+{% block content %}
+<div class="col-12">
+    {% if not enrolled_courses %}
+        <div class="alert alert-warning">
+            <i class="fas fa-exclamation-triangle mr-2"></i>
+            No courses enrolled for the current semester.
+            <a href="{% url 'course_enrollment' %}" class="btn btn-sm btn-primary ml-2">
+                Enroll Now
+            </a>
+        </div>
+    {% else %}
+        <div class="card">
+            <div class="card-header">
+                <h3 class="card-title">Weekly Class Schedule</h3>
+                <div class="card-tools">
+                    <span class="badge badge-primary">{{ enrolled_courses|length }} Courses</span>
+                </div>
+            </div>
+            <div class="card-body">
+                <div class="table-responsive">
+                    <table class="table table-bordered table-striped">
+                        <thead>
+                            <tr>
+                                <th>Day</th>
+                                <th>Course Code</th>
+                                <th>Course Name</th>
+                                <th>Time</th>
+                                <th>Room</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for day, schedules in routine_data.items %}
+                                {% for schedule in schedules %}
+                                <tr>
+                                    <td>{{ day }}</td>
+                                    <td>{{ schedule.course.course_code }}</td>
+                                    <td>{{ schedule.course.course_name }}</td>
+                                    <td>{{ schedule.time_slot }}</td>
+                                    <td>{{ schedule.room_no }}</td>
+                                </tr>
+                                {% empty %}
+                                <tr>
+                                    <td>{{ day }}</td>
+                                    <td colspan="4" class="text-muted">No classes scheduled</td>
+                                </tr>
+                                {% endfor %}
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    {% endif %}
+</div>
+{% endblock %}
+
+{% block customJs %}
+{% endblock %}

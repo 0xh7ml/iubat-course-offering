@@ -1,0 +1,28 @@
+<!-- Sidebar Menu for Student Portal -->
+<li class="nav-item">
+    <a href="{% url 'student_dashboard' %}" class="nav-link">
+        <i class="nav-icon fas fa-tachometer-alt"></i>
+        <p>Dashboard</p>
+    </a>
+</li>
+
+<li class="nav-item">
+    <a href="{% url 'course_enrollment' %}" class="nav-link">
+        <i class="nav-icon fas fa-plus-circle"></i>
+        <p>Course Enrollment</p>
+    </a>
+</li>
+
+<li class="nav-item">
+    <a href="{% url 'student_routine' %}" class="nav-link">
+        <i class="nav-icon fas fa-calendar-week"></i>
+        <p>My Routine</p>
+    </a>
+</li>
+
+<li class="nav-item">
+    <a href="{% url 'student_logout' %}" class="nav-link">
+        <i class="nav-icon fas fa-sign-out-alt"></i>
+        <p>Logout</p>
+    </a>
+</li>
