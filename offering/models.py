@@ -112,3 +112,4 @@ class Enrollment(models.Model):
 
     def __str__(self):
         return f"{self.student.student_id} enrolled in {self.course.course_code} for {self.semester} {self.year}"
+    
